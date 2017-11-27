@@ -1,15 +1,14 @@
 package com.db.awmd.challenge.repository;
 
-import com.db.awmd.challenge.domain.Account;
-import com.db.awmd.challenge.exception.DuplicateAccountIdException;
-import com.db.awmd.challenge.exception.InvalidAccountException;
-
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.stereotype.Repository;
+
+import com.db.awmd.challenge.domain.Account;
+import com.db.awmd.challenge.exception.DuplicateAccountIdException;
+import com.db.awmd.challenge.exception.InvalidAccountException;
 
 @Repository
 public class AccountsRepositoryInMemory implements AccountsRepository {
@@ -35,7 +34,7 @@ public class AccountsRepositoryInMemory implements AccountsRepository {
 	}
 
 	@Override
-	public void transferAccountBalance(String fromAccountId, String toAccountId, BigDecimal transferAmount) { 
+	public synchronized void transferAccountBalance(String fromAccountId, String toAccountId, BigDecimal transferAmount) { 
 		Account fromAccount = getAccount(fromAccountId);
 		Account toAccount = getAccount(toAccountId);  
 		
@@ -48,7 +47,6 @@ public class AccountsRepositoryInMemory implements AccountsRepository {
 
 		fromAccount.setBalance(fromAccount.getBalance().add(transferAmount.negate()));
 		toAccount.setBalance(toAccount.getBalance().add(transferAmount));
-
 	}
 
 }

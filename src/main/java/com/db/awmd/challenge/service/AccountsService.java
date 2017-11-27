@@ -31,7 +31,7 @@ public class AccountsService {
 		return this.accountsRepository.getAccount(accountId);
 	}
  
-	public synchronized void transferAmountAndUpdateAccounts(MoneyTransferDetails moneyTransferDetails) { 
+	public void transferAmountAndUpdateAccounts(MoneyTransferDetails moneyTransferDetails) { 
 			this.accountsRepository.transferAccountBalance(
 					moneyTransferDetails.getFromAccount(),
 					moneyTransferDetails.getToAccount(),
@@ -41,5 +41,5 @@ public class AccountsService {
 			notificationService.notifyAboutTransfer(getAccount(moneyTransferDetails.getToAccount()), moneyTransferDetails.getTransferAmount().toString()+" Credited");
 
 	}
- 
+	 
 }

@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 import com.db.awmd.challenge.domain.Account;
 import com.db.awmd.challenge.domain.MoneyTransferDetails;
+import com.db.awmd.challenge.exception.InvalidAccountException;
 import com.db.awmd.challenge.service.AccountsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -111,7 +112,7 @@ public class AccountsControllerTest {
 	}
 
 	@Test
-	public void inValidFromAccountToAccountAndTransferAmount() throws Exception {
+	public void inValidFromAccountAndToAccountAndTransferAmount() throws Exception {
 		MoneyTransferDetails transferDetails = new MoneyTransferDetails();
 		transferDetails.setFromAccount("");
 		transferDetails.setToAccount(null);
@@ -122,10 +123,9 @@ public class AccountsControllerTest {
 						.content(new ObjectMapper().writeValueAsString(transferDetails)))
 				.andExpect(status().isBadRequest());
 	}
-
+	
 	@Test
 	public void validFromAccountToAccountAndTransferAmount() throws Exception {
-
 		Account accountA = new Account("A", new BigDecimal("123.45"));
 		this.accountsService.createAccount(accountA);
 
@@ -137,13 +137,10 @@ public class AccountsControllerTest {
 		transferDetails.setToAccount(accountB.getAccountId());
 		transferDetails.setTransferAmount(BigDecimal.ONE);
 
-		this.mockMvc
-				.perform(post("/v1/accounts/transfer").contentType(MediaType.APPLICATION_JSON)
-						.content(new ObjectMapper().writeValueAsString(transferDetails)))
-				.andExpect(status().isBadRequest());
+		this.accountsService.transferAmountAndUpdateAccounts(transferDetails);
 	}
-
-	@Test
+  
+  @Test(expected=InvalidAccountException.class)
 	public void nonExistantAccountTransfer() throws Exception {
 
 		MoneyTransferDetails transferDetails = new MoneyTransferDetails();
@@ -151,10 +148,7 @@ public class AccountsControllerTest {
 		transferDetails.setToAccount("accountB");
 		transferDetails.setTransferAmount(BigDecimal.ONE);
 
-		this.mockMvc
-				.perform(post("/v1/accounts/transfer").contentType(MediaType.APPLICATION_JSON)
-						.content(new ObjectMapper().writeValueAsString(transferDetails)))
-				.andExpect(status().isBadRequest());
+		this.accountsService.transferAmountAndUpdateAccounts(transferDetails);
 	}
-
+  
 }
