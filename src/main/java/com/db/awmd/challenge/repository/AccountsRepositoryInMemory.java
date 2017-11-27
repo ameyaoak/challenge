@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.db.awmd.challenge.domain.Account;
 import com.db.awmd.challenge.exception.DuplicateAccountIdException;
 import com.db.awmd.challenge.exception.InvalidAccountException;
+import com.db.awmd.challenge.exception.InvalidBalanceException;
 
 @Repository
 public class AccountsRepositoryInMemory implements AccountsRepository {
@@ -44,6 +45,10 @@ public class AccountsRepositoryInMemory implements AccountsRepository {
 		if (toAccount == null) {
 			throw new InvalidAccountException("Account id " + toAccountId + " dosenot exists!");
 		}
+		if (fromAccount.getBalance().compareTo(BigDecimal.ZERO) <= 0) {
+			throw new InvalidBalanceException("Cannot transfer from account id " + fromAccountId + " we do not support overdrafts!");
+		}
+		 
 
 		fromAccount.setBalance(fromAccount.getBalance().add(transferAmount.negate()));
 		toAccount.setBalance(toAccount.getBalance().add(transferAmount));
